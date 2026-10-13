@@ -1,8 +1,11 @@
 package com.insurancerisk.riskplatform.assessment.service;
 
+//import com.insurancerisk.riskplatform.application.dto.ApplicationResponse;
+import com.insurancerisk.riskplatform.application.dto.ApplicationResponse;
 import com.insurancerisk.riskplatform.application.entity.InsuranceApplication;
 import com.insurancerisk.riskplatform.application.repository.InsuranceApplicationRepository;
 import com.insurancerisk.riskplatform.assessment.RiskCategory;
+import com.insurancerisk.riskplatform.assessment.dto.ApplicationAssessmentHistoryResponse;
 import com.insurancerisk.riskplatform.assessment.dto.AssessmentResponse;
 import com.insurancerisk.riskplatform.assessment.dto.CreateAssessmentRequest;
 import com.insurancerisk.riskplatform.assessment.entity.InsuranceAssessment;
@@ -12,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 
 @Service
 public class AssessmentService {
@@ -76,8 +80,45 @@ public class AssessmentService {
         assessment.setAssessedAt(Instant.now());
 
         assessment = assessmentRepository.save(assessment);
+        application.setStatus("ASSESSED");
+        application = applicationRepository.save(application);
 
         return toResponse(assessment);
+    }
+
+    public List<AssessmentResponse> getAssessments() {
+        return assessmentRepository.findAll()
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public ApplicationAssessmentHistoryResponse getAssessmentsByApplicationId(Long id)
+    {
+        InsuranceApplication application = applicationRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Insurance application with ID " + id + " was not found"
+                ));
+
+        ApplicationResponse applicationResponse = new ApplicationResponse(
+                application.getId(),
+                application.getApplicantName(),
+                application.getInsuranceType(),
+                application.getCoverageAmount(),
+                application.getStatus());
+
+        return new ApplicationAssessmentHistoryResponse(
+                applicationResponse,
+                assessmentRepository.findByApplication_Id(id)
+                .stream()
+                .map(this::toResponse)
+                .toList()
+        );
+
+//        return assessmentRepository.findByApplication_Id(id)
+//                .stream()
+//                .map(this::toResponse)
+//                .toList();
     }
 
     private AssessmentResponse toResponse(InsuranceAssessment assessment)

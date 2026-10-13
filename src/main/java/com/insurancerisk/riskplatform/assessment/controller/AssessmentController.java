@@ -1,16 +1,16 @@
 package com.insurancerisk.riskplatform.assessment.controller;
 
+import com.insurancerisk.riskplatform.assessment.dto.ApplicationAssessmentHistoryResponse;
 import com.insurancerisk.riskplatform.assessment.dto.AssessmentResponse;
 import com.insurancerisk.riskplatform.assessment.dto.CreateAssessmentRequest;
 import com.insurancerisk.riskplatform.assessment.service.AssessmentService;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
-@RequestMapping("/api/assessment")
+@RequestMapping("/api/assessments")
 public class AssessmentController {
 
     private final AssessmentService assessmentService;
@@ -19,6 +19,19 @@ public class AssessmentController {
         this.assessmentService = assessmentService;
     }
 
+    @GetMapping
+    public List<AssessmentResponse> getAssessments()
+    {
+        return assessmentService.getAssessments();
+    }
+
+    @GetMapping("/{id}")
+    public ApplicationAssessmentHistoryResponse getAssessmentsById(
+            @PathVariable Long id
+    )
+    {
+        return assessmentService.getAssessmentsByApplicationId(id);
+    }
 
     @PostMapping
     public AssessmentResponse createAssessement(
