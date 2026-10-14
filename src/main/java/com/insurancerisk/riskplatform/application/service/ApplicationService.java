@@ -7,6 +7,7 @@ import com.insurancerisk.riskplatform.application.dto.UpdateApplicationRequest;
 import com.insurancerisk.riskplatform.application.entity.InsuranceApplication;
 import com.insurancerisk.riskplatform.application.repository.InsuranceApplicationRepository;
 import com.insurancerisk.riskplatform.common.exception.ResourceNotFoundException;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -29,7 +30,7 @@ public class ApplicationService {
 //    }
 
     public List<ApplicationResponse> getApplications() {
-        return applicationRepository.findAll()
+        return applicationRepository.findAll(Sort.by(Sort.Direction.ASC, "id"))
                 .stream()
                 .map(this::toResponse)
                 .toList();
